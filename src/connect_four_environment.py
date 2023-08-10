@@ -23,12 +23,15 @@ class ConnectFourEnvironment(ConnectFourBaseEnvironment):
     # Note: in a static method you do not have access to self
     def is_terminal(game_state):
         # it must return True if there is a winner or there are no more legal actions, False otherwise
-        gb = 
-        return False
+        return len(ConnectFourBaseEnvironment.get_legal_action(game_state)) == 0 or ConnectFourBaseEnvironment.get_winner(game_state) is not None
     
     # TODO
     # static method
     # Note: in a static method you do not have access to self
     def payoff(game_state, player_colour):
         # it must return a payoff for the considered player ('Y' or 'R') in a given game_state
+        if ConnectFourBaseEnvironment.get_winner(game_state) == player_name: 
+             return 1 
+        if ConnectFourBaseEnvironment.get_winner(game_state) is not None: 
+             return -1 
         return 0
