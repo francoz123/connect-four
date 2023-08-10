@@ -13,7 +13,7 @@ class ConnectFourEnvironment(ConnectFourBaseEnvironment):
         actions = []
         gb = game_state['game-board']
         for i in range(gb.get_width):
-							    if ConnectFourBaseEnvironment.is_valid_column(gb, i) and !ConnectFourBaseEnvironment.is_column_full(gb, i):
+			        if ConnectFourBaseEnvironment.is_valid_column(gb, i) and !ConnectFourBaseEnvironment.is_column_full(gb, i):
                 for option in  ['release-', 'popup-', 'use-power-up-']:
                     actions.append(option + i)
         return actions
