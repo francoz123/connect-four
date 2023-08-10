@@ -34,12 +34,9 @@ class ConnectFourPlayer(Agent):
     # add all the necessary actions as per the requirements
     def add_all_actions(self):
         for i in range(7):
-            self.add_action('release-{0}'.format(i), lambda v: v.split('-')[0] == 'release'\
-                and v.split('-')[1] in range(7))
+            self.add_action('release-{0}'.format(i), lambda: return ('release', i))
         for i in range(7):
-            self.add_action('popup-{0}'.format(i), lambda v: v.split('-')[0] == 'release'\
-                and v.split('-')[1] in range(7))
+            self.add_action('popup-{0}'.format(i), lambda: return ('popup', i))
         for i in range(7):
-            self.add_action('use-power-up-{0}'.format(i), lambda v: v.split('-')[0] == 'release'\
-                and v.split('-')[1] in range(7))
+            self.add_action('use-power-up-{0}'.format(i), lambda: return ('use-power-up', i))
         
