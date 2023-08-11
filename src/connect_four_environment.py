@@ -15,10 +15,10 @@ class ConnectFourEnvironment(ConnectFourBaseEnvironment):
         player = game_state['player-turn']
         for i in range(gb.get_width):
 	if ConnectFourBaseEnvironment.is_valid_column(gb, i) and !ConnectFourBaseEnvironment.is_column_full(gb, i):
-		for option in  ['release-', 'use-power-up-']:
-			actions.append(option + i)
-			if gb.get_item_value(i, 0) == player:
-				actions.append('popup-{0}'.format(i))
+	for option in  ['release-', 'use-power-up-']:
+		actions.append(option + i)
+	if gb.get_item_value(i, 0) == player:
+		actions.append('popup-{0}'.format(i))
         return actions
     
     # TODO
