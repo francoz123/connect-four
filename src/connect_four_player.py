@@ -11,8 +11,8 @@ class ConnectFourPlayer(Agent):
     def add_all_sensors(self):
         self.add_sensor('game-board-sensor', GridMap(6,7, None), \
             lambda v: isinstance(v, GridMap) and all(\
-            v.get_item_value(i,j) in ['Y', 'R', 'W', None] for i in v.get_width()\
-                for j in v.get_height()))
+            v.get_item_value(i,j) in ['Y', 'R', 'W', None] for i in range(v.get_width())\
+                for j in range(v.get_height())))
         
         self.add_sensor('powerups-sensor', {'Y': None, 'R': None}, lambda v:\
             isinstance(v, dict) and len(v) == 2 and all(x in v.keys() and v[x] in\
@@ -24,7 +24,7 @@ class ConnectFourPlayer(Agent):
     # add all the necessary actuators as per the requirements
     def add_all_actuators(self):
         self.add_actuator('checker-handler', ('release', 0), lambda v: isinstance(v, tuple)\
-            and len(v) == 2 and v[0] in ['release', 'popup'] and v[1] in range(7))
+            and len(v) == 2 and v[0] in ['release', 'popup', 'use-power-up'] and v[1] in range(7))
         
         self.add_actuator('powerup-selector', False, lambda v: isinstance(v, bool) and\
             v in [True, False])
@@ -34,9 +34,9 @@ class ConnectFourPlayer(Agent):
     # add all the necessary actions as per the requirements
     def add_all_actions(self):
         for i in range(7):
-            self.add_action('release-{0}'.format(i), lambda: return ('release', i))
+            self.add_action('release-{0}'.format(i), lambda: {'checker-handler': ('release', i)})
         for i in range(7):
-            self.add_action('popup-{0}'.format(i), lambda: return ('popup', i))
+            self.add_action('popup-{0}'.format(i), lambda:  {'checker-handler': ('popup', i)})
         for i in range(7):
-            self.add_action('use-power-up-{0}'.format(i), lambda: return ('use-power-up', i))
+            self.add_action('use-power-up-{0}'.format(i), lambda:  {'powerup-selector': True, 'checker-handler': ('release', i)})
         
