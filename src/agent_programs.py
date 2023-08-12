@@ -1,9 +1,11 @@
 import traceback
 import random
+import time
 
+from une_ai.models import GraphNode, MCTSGraphNode
 from une_ai.assignments import ConnectFourGame
-from une_ai.models import GraphNode
 from connect_four_environment import ConnectFourEnvironment
+from MCTS_functions import mcts
 
 # A simple agent program choosing actions randomly
 def random_behaviour(percepts, actuators):
@@ -42,14 +44,14 @@ def human_agent(percepts, actuators):
 # TODO
 # complete the agent program to implement an intelligent behaviour for
 # the agent player
-def intelligent_behaviour(percepts, actuator):
+def intelligent_behaviour(percepts, actuator, max_depth = 4):
     game_state = {
         'game-board': percepts['game-board-sensor'],
         'power-up-Y': percepts['powerups-sensor']['Y'],
         'power-up-R': percepts['powerups-sensor']['R'],
         'player-turn': percepts['turn-taking-indicator']
     }
-    max_depth = 4
+    #max_depth = 5
     root = GraphNode(game_state, None, None, 0)
     player_turn = ConnectFourEnvironment.turn(game_state)
     if not ConnectFourEnvironment.is_terminal(game_state):
@@ -141,3 +143,25 @@ def optimised_minimax(node, player, tt, depth):
         tt.store_node(node, entry_dict)
 
     return value, move_best
+
+def agent_program_mcts(percepts, actuators, max_time=1):
+    player = percepts['turn-taking-indicator']
+    game_state = {
+        'game-board': percepts['game-board-sensor'],
+        'power-up-Y': percepts['powerups-sensor']['Y'],
+        'power-up-R': percepts['powerups-sensor']['R'],
+        'player-turn': player
+    }
+    #max_depth = 5
+    #root_node = GraphNode(game_state, None, None, 0)
+
+    if not ConnectFourEnvironment.is_terminal(game_state):
+        tic = time.time()
+        root_node = MCTSGraphNode(game_state, None, None)
+        best_move = mcts(root_node, player, max_time)
+        toc = time.time()
+        print("[MTCS (player {0})] Elapsed (sec): {1:.6f}".format(player, toc-tic))
+        if best_move is not None:
+            return [best_move]
+    
+    return []

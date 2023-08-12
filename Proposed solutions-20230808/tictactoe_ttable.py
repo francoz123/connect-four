@@ -10,7 +10,7 @@ class TicTacToeTTable(TTable):
     def generate_zobrist_table(self):
         random_int = lambda: random.randint(0, pow(2, 64))
         
-        markers = ['X', 'O'] 
+        markers = ['X', 'O']
         board_size = 3
         table = {}
         for i in range(board_size):

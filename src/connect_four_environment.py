@@ -22,7 +22,7 @@ class ConnectFourEnvironment(ConnectFourBaseEnvironment):
                     actions.append('use-power-up-{0}'.format(i))
                 if gb.get_item_value(i, gb.get_height()-1) == player:
                     actions.append('popup-{0}'.format(i))
-            elif power_up is not None and power_up == 'anvil':
+            elif ConnectFourBaseEnvironment.is_valid_column(gb, i) and power_up is not None and power_up == 'anvil':
                 actions.append('use-power-up-{0}'.format(i))
         print(actions)
         return actions
