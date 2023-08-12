@@ -34,8 +34,8 @@ class ConnectFourPlayer(Agent):
     # add all the necessary actions as per the requirements
     def add_all_actions(self):
         for i in range(7):
-            self.add_action('release-{0}'.format(i), lambda: {'powerup-selector': False, 'checker-handler': ('release', i)})
-            self.add_action('popup-{0}'.format(i), lambda:  {'powerup-selector': False, 'checker-handler': ('popup', i)})
-            self.add_action('use-power-up-{0}'.format(i), lambda:  {'powerup-selector': True, 'checker-handler':\
+            self.add_action('release-{0}'.format(i), lambda i=i: {'powerup-selector': False, 'checker-handler': ('release', i)})
+            self.add_action('popup-{0}'.format(i), lambda i=i:  {'powerup-selector': False, 'checker-handler': ('popup', i)})
+            self.add_action('use-power-up-{0}'.format(i), lambda i=i:  {'powerup-selector': True, 'checker-handler':\
                 ('release', i)})
         

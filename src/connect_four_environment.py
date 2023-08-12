@@ -24,7 +24,7 @@ class ConnectFourEnvironment(ConnectFourBaseEnvironment):
                     actions.append('popup-{0}'.format(i))
             elif ConnectFourBaseEnvironment.is_valid_column(gb, i) and power_up is not None and power_up == 'anvil':
                 actions.append('use-power-up-{0}'.format(i))
-        print(actions)
+        #print(actions)
         return actions
     
     # TODO
@@ -32,7 +32,7 @@ class ConnectFourEnvironment(ConnectFourBaseEnvironment):
     # Note: in a static method you do not have access to self
     def is_terminal(game_state):
         # it must return True if there is a winner or there are no more legal actions, False otherwise
-        return ConnectFourBaseEnvironment.get_legal_actions(game_state) is not None\
+        return len(ConnectFourEnvironment.get_legal_actions(game_state)) == 0\
             or ConnectFourBaseEnvironment.get_winner(game_state) is not None
     
     # TODO

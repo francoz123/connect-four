@@ -6,9 +6,10 @@ from agent_programs import random_behaviour, human_agent, intelligent_behaviour,
 if __name__ == '__main__':
     # Change these two lines to instantiate players with proper
     # agent programs, as per your tests
-    wrapped_mcts = lambda p, a:  agent_program_mcts(p, a, max_time = 1)
-    yellow_player = ConnectFourPlayer('Y', lambda p, a: intelligent_behaviour(p, a, max_depth=4))
-    red_player = ConnectFourPlayer('R', wrapped_mcts)
+    wrapped_mcts = lambda p, a:  agent_program_mcts(p, a, max_time = 2)
+    wrapped_inteligent_behaviour = lambda p, a: intelligent_behaviour(p, a, max_depth=4)
+    yellow_player = ConnectFourPlayer('Y', wrapped_mcts)
+    red_player = ConnectFourPlayer('R', wrapped_inteligent_behaviour)
 
     # DO NOT EDIT THESE LINES OF CODE!!!
     game_environment = ConnectFourEnvironment()
