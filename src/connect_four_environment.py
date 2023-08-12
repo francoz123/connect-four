@@ -15,14 +15,16 @@ class ConnectFourEnvironment(ConnectFourBaseEnvironment):
         player = game_state['player-turn']
         power_up = game_state['power-up-' + player]
         for i in range(gb.get_width()):
-            if ConnectFourBaseEnvironment.is_valid_column(gb, i) and not ConnectFourBaseEnvironment.is_column_full(gb, i):
-                actions.append('release-' + str(i))
+            if ConnectFourBaseEnvironment.is_valid_column(gb, i) and not ConnectFourBaseEnvironment.is_column_full(gb, i)\
+                and ConnectFourBaseEnvironment.get_first_free_row(gb, i) is not None:
+                actions.append('release-{0}'.format(i))
                 if power_up is not None:
                     actions.append('use-power-up-{0}'.format(i))
-                if gb.get_item_value(i, 0) == player:
+                if gb.get_item_value(i, gb.get_height()-1) == player:
                     actions.append('popup-{0}'.format(i))
             elif power_up is not None and power_up == 'anvil':
                 actions.append('use-power-up-{0}'.format(i))
+        print(actions)
         return actions
     
     # TODO

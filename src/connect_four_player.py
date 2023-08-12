@@ -24,7 +24,7 @@ class ConnectFourPlayer(Agent):
     # add all the necessary actuators as per the requirements
     def add_all_actuators(self):
         self.add_actuator('checker-handler', ('release', 0), lambda v: isinstance(v, tuple)\
-            and len(v) == 2 and v[0] in ['release', 'popup', 'use-power-up'] and v[1] in range(7))
+            and len(v) == 2 and v[0] in ['release', 'popup'] and v[1] in range(7))
         
         self.add_actuator('powerup-selector', False, lambda v: isinstance(v, bool) and\
             v in [True, False])
@@ -34,9 +34,8 @@ class ConnectFourPlayer(Agent):
     # add all the necessary actions as per the requirements
     def add_all_actions(self):
         for i in range(7):
-            self.add_action('release-{0}'.format(i), lambda: {'checker-handler': ('release', i)})
-        for i in range(7):
-            self.add_action('popup-{0}'.format(i), lambda:  {'checker-handler': ('popup', i)})
-        for i in range(7):
-            self.add_action('use-power-up-{0}'.format(i), lambda:  {'powerup-selector': True, 'checker-handler': ('release', i)})
+            self.add_action('release-{0}'.format(i), lambda: {'powerup-selector': False, 'checker-handler': ('release', i)})
+            self.add_action('popup-{0}'.format(i), lambda:  {'powerup-selector': False, 'checker-handler': ('popup', i)})
+            self.add_action('use-power-up-{0}'.format(i), lambda:  {'powerup-selector': True, 'checker-handler':\
+                ('release', i)})
         

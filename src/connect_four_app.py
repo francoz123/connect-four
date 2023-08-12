@@ -6,7 +6,7 @@ from agent_programs import random_behaviour, human_agent, intelligent_behaviour
 if __name__ == '__main__':
     # Change these two lines to instantiate players with proper
     # agent programs, as per your tests
-    yellow_player = ConnectFourPlayer('Y', random_behaviour)
+    yellow_player = ConnectFourPlayer('Y', intelligent_behaviour)
     red_player = ConnectFourPlayer('R', random_behaviour)
 
     # DO NOT EDIT THESE LINES OF CODE!!!
