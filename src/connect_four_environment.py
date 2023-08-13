@@ -24,7 +24,7 @@ class ConnectFourEnvironment(ConnectFourBaseEnvironment):
                     actions.append('popup-{0}'.format(i))
             elif ConnectFourBaseEnvironment.is_valid_column(gb, i) and power_up is not None and power_up == 'anvil':
                 actions.append('use-power-up-{0}'.format(i))
-        #print(actions)
+        
         return actions
     
     # TODO

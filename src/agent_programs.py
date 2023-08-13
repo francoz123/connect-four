@@ -6,6 +6,7 @@ from une_ai.models import GraphNode, MCTSGraphNode
 from une_ai.assignments import ConnectFourGame
 from connect_four_environment import ConnectFourEnvironment
 from MCTS_functions import mcts
+from minimax_functions import minimax, minimax_alpha_beta, optimised_minimax, optimised_minimax_alpha_beta
 
 # A simple agent program choosing actions randomly
 def random_behaviour(percepts, actuators):
@@ -102,47 +103,47 @@ def minimax_alpha_beta(node, player, alpha, beta, depth):
         
     return value, move_best
 
-def optimised_minimax(node, player, tt, depth):
-    game_state = node.get_state()
-    player_turn = game_state['player-turn']
-    is_maximising = player_turn == player
+def agent_program_optimised_minimax(percepts, actuators, tt, max_depth=4):
+    player = percepts['turn-taking-indicator']
+    game_state = {
+        'game-board': percepts['game-board-sensor'],
+        'power-up-Y': percepts['powerups-sensor']['Y'],
+        'power-up-R': percepts['powerups-sensor']['R'],
+        'player-turn': player
+    }
 
-    # using transposition table
-    tt_entry = tt.lookup(node)
-    if tt_entry is not None and tt_entry['depth'] >= depth:
-        return tt_entry['value'], tt_entry["move_best"]
     
-    move_best = None
+    if not ConnectFourEnvironment.is_terminal(game_state):
+        state_node = GraphNode(game_state, None, None, 0)
+        tic = time.time()
+        _, best_move = optimised_minimax(state_node, player, tt, max_depth)
+        toc = time.time()
+        print("[Optimised Minimax (player {0})] Elapsed (sec): {1:.6f}".format(player, toc-tic))
+        if best_move is not None:
+            return [best_move]
     
-    if is_maximising:
-        value = float('-Inf')
-    else:
-        value = float('+Inf')
-    if depth <= 0 or ConnectFourEnvironment.is_terminal(game_state):
-        value = ConnectFourEnvironment.payoff(game_state, player)
-        return value, move_best
+    return []
+
+def agent_program_optimised_minimax_ab(percepts, actuators, tt, max_depth=4):
+    player = percepts['turn-taking-indicator']
+    game_state = {
+        'game-board': percepts['game-board-sensor'],
+        'power-up-Y': percepts['powerups-sensor']['Y'],
+        'power-up-R': percepts['powerups-sensor']['R'],
+        'player-turn': player
+    }
+
     
-    legal_actions = ConnectFourEnvironment.get_legal_actions(game_state)
-    for action in legal_actions:
-        new_state = ConnectFourEnvironment.transition_result(game_state, action)
-        child_node = GraphNode(new_state, node, action, 1)
-        value_new, _ = optimised_minimax(child_node, player, tt, depth - 1)
-        
-        if (is_maximising and value_new > value) or (not is_maximising and value_new < value):
-            value = value_new
-            move_best = action
-
-    # storing value in transposition table
-    if tt_entry is None or tt_entry['depth'] <= depth:
-        entry_dict = {
-            "value": int(value),
-            "depth": depth,
-            "move_best": move_best
-        }
-
-        tt.store_node(node, entry_dict)
-
-    return value, move_best
+    if not ConnectFourEnvironment.is_terminal(game_state):
+        state_node = GraphNode(game_state, None, None, 0)
+        tic = time.time()
+        _, best_move = optimised_minimax_alpha_beta(state_node, player, float("-Inf"), float("+Inf"),tt, max_depth)
+        toc = time.time()
+        print("[Optimised Minimax (player {0})] Elapsed (sec): {1:.6f}".format(player, toc-tic))
+        if best_move is not None:
+            return [best_move]
+    
+    return []
 
 def agent_program_mcts(percepts, actuators, max_time=1):
     player = percepts['turn-taking-indicator']
@@ -152,9 +153,7 @@ def agent_program_mcts(percepts, actuators, max_time=1):
         'power-up-R': percepts['powerups-sensor']['R'],
         'player-turn': player
     }
-    #max_depth = 5
-    #root_node = GraphNode(game_state, None, None, 0)
-
+    
     if not ConnectFourEnvironment.is_terminal(game_state):
         tic = time.time()
         root_node = MCTSGraphNode(game_state, None, None)
