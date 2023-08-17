@@ -46,14 +46,18 @@ def human_agent(percepts, actuators):
 # complete the agent program to implement an intelligent behaviour for
 # the agent player
 def intelligent_behaviour(percepts, actuator, max_depth = 4):
+    player_turn = percepts['turn-taking-indicator']
+    other = 'Y' if player_turn == 'R' else 'R'
     game_state = {
         'game-board': percepts['game-board-sensor'],
         'power-up-Y': percepts['powerups-sensor']['Y'],
         'power-up-R': percepts['powerups-sensor']['R'],
-        'player-turn': percepts['turn-taking-indicator']
+        'player-turn': player_turn
     }
     #max_depth = 5
     root = GraphNode(game_state, None, None, 0)
+    print(player_turn,  ConnectFourEnvironment.get_openings(percepts['game-board-sensor'], player_turn))
+    print(other,  ConnectFourEnvironment.get_openings(percepts['game-board-sensor'], other))
     player_turn = ConnectFourEnvironment.turn(game_state)
     if not ConnectFourEnvironment.is_terminal(game_state):
         state_node = GraphNode(game_state, None, None, 0)

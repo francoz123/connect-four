@@ -13,14 +13,16 @@ def minimax(node, player, depth):
     else:
         value = float('+Inf')
     if depth <= 0 or gm.is_terminal(game_state):
-        value = gm.payoff(game_state, player)
+        value = gm.payoff(game_state, player) + node.get_cost()
         return value, move_best
     
     legal_actions = gm.get_legal_actions(game_state)
     for action in legal_actions:
+        cost += 4 if action.split('-')[-1] == 3 else 1
         new_state = gm.transition_result(game_state, action)
-        child_node = GraphNode(new_state, node, action, 1)
+        child_node = GraphNode(new_state, node, action, cost)
         value_new, _ = minimax(child_node, player, depth - 1)
+        #value_new += 15 if action.split('-')[-1] == 3 else 0
         if (is_maximising and value_new > value) or (not is_maximising and value_new < value):
             value = value_new
             move_best = action
@@ -40,13 +42,15 @@ def minimax_alpha_beta(node, player, alpha, beta, depth):
     else:
         value = float('+Inf')
     if depth <= 0 or gm.is_terminal(game_state):
-        value = gm.payoff(game_state, player)
+        value = gm.payoff(game_state, player) + node.get_cost()
         return value, move_best
     
     for action in legal_actions:
+        cost += 7 if action.split('-')[-1] == 3 else 1
         new_state = gm.transition_result(game_state, action)
-        child_node = GraphNode(new_state, node, action, 1)
+        child_node = GraphNode(new_state, node, action, cost)
         value_new, _ = minimax_alpha_beta(child_node, player, alpha, beta, depth - 1)
+        #value_new += 10 if action.split('-')[-1] == 3 else 0
         if is_maximising:
             if value_new > value:
                 value = value_new
@@ -72,8 +76,8 @@ def optimised_minimax_alpha_beta(node, player, alpha, beta, tt, max_depth):
     # using transposition table
     tt_entry = tt.lookup(node)
     if tt_entry is not None and tt_entry['depth'] >= max_depth:
-        if tt_entry["move_best"] in legal_actions:
-            return tt_entry['value'], tt_entry["move_best"]
+        #if tt_entry["move_best"] in legal_actions:
+        return tt_entry['value'], tt_entry["move_best"]
         """ if 'use' in tt_entry["move_best"]:
             if game_state['power-up-'+player] is not None:
                 return tt_entry['value'], tt_entry["move_best"]
@@ -98,7 +102,7 @@ def optimised_minimax_alpha_beta(node, player, alpha, beta, tt, max_depth):
         new_state = gm.transition_result(game_state, action)
         child_node = GraphNode(new_state, node, action, 1)
         value_new, _ = optimised_minimax_alpha_beta(child_node, player, alpha, beta, tt, max_depth - 1)
-        
+        value_new += 7 if action.split('-')[-1] == 3 else 0
         if is_maximising:
             if value_new > value:
                 value = value_new

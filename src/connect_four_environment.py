@@ -40,8 +40,55 @@ class ConnectFourEnvironment(ConnectFourBaseEnvironment):
     # Note: in a static method you do not have access to self
     def payoff(game_state, player_colour):
         # it must return a payoff for the considered player ('Y' or 'R') in a given game_state
-        if ConnectFourBaseEnvironment.get_winner(game_state) == player_colour: 
-             return 1 
-        if ConnectFourBaseEnvironment.get_winner(game_state) is not None: 
-             return -1 
-        return 0
+        value = 0
+        gb = game_state['game-board']
+        if ConnectFourEnvironment.is_terminal(game_state):
+            if ConnectFourBaseEnvironment.get_winner(game_state) == player_colour: 
+             return 100
+            if ConnectFourBaseEnvironment.get_winner(game_state) is not None: 
+                return -100
+            return 50
+        
+        opponent_colour = 'Y' if player_colour == 'R' else 'Y'
+        openings = ConnectFourBaseEnvironment.get_openings(gb, player_colour)
+        counter_openings = ConnectFourBaseEnvironment.get_openings(gb, opponent_colour)
+
+        for opening_list in openings.values():
+            for opening in opening_list:
+                value += 2 if opening[1] == 2 else 5 if opening[1] == 3 else 0
+
+        for opening_list in counter_openings.values():
+            for opening in opening_list:
+                if opening[1] == 2:
+                    power_up = game_state['power-up-{0}'.format(opponent_colour)]
+                    if power_up is not None and power_up == 'x2':
+                        value -= 5
+                    else:
+                        value -= 2
+                elif opening[1] == 3:
+                    value -= 100
+
+        return value
+
+def connected(board, player):
+    opponent_colour = 'Y' if player == 'R' else 'Y'
+    lines = {
+        'v': [],
+        'h': [],
+        'rd': [],
+        'ld': []
+    }
+    before, pieces, after, total = 0, 0, 0, 0
+    for i in range(board.get_height()):
+        for j in range(board.get_width()):
+            turn = board.get_item_value(j, i)
+            pieces += 1 if turn == player else 0
+            before += 1 if (turn == None and pieces == 0) else 0
+            after += 1 if (turn == None and pieces > 0) else 0
+            total += 1
+
+            if turn == opponent_colour:
+                if total >= 5 and pieces == 2:
+                    lines['h'].append([i, pieces, 2])
+                if total >= 5 and pieces == 3:
+                    lines['h'].append([i, pieces, 100])
