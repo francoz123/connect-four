@@ -48,7 +48,8 @@ class ConnectFourEnvironment(ConnectFourBaseEnvironment):
             if ConnectFourBaseEnvironment.get_winner(game_state) is not None: 
                 return -100
             return 50
-        
+        h = horizontals(gb, player_colour)
+        print('HORIZONTALS', h)
         opponent_colour = 'Y' if player_colour == 'R' else 'Y'
         openings = ConnectFourBaseEnvironment.get_openings(gb, player_colour)
         counter_openings = ConnectFourBaseEnvironment.get_openings(gb, opponent_colour)
@@ -71,27 +72,31 @@ class ConnectFourEnvironment(ConnectFourBaseEnvironment):
         return value
 
 def horizontals(board, player):
-    opponent_colour = 'Y' if player == 'R' else 'Y'
+    opponent_colour = 'Y' if player == 'R' else 'R'
     openings = []
     # Calculate horizontal twos
     for row in range(board.get_height()):
-        pieces, twos, threes = 0, 0, []
-        for col in range(3, board.get_width()):
+        twos, threes = 0, []
+        for col in range(board.get_width()-3):
             start, stop, gaps = col, col + 3, []
-            while start <= stop and not board.get_item_value(start, row) == opponent_colour:
+            pieces = 0
+            while (start <= stop and board.get_item_value(start, row) != opponent_colour):
+                #print('s: {0}, player: {1}, item: {2}, pieces: {3}, row: {4}'.format(start, player, board.get_item_value(start, row), pieces, row))
                 if board.get_item_value(start, row) == player:
                     pieces += 1 
                 else:
                     gaps.append(start)
                 start += 1
-            if start == stop:
+            if start == stop + 1:
                 if pieces == 2:
                     twos += 1 
                 if pieces == 3:
+                    print('PG: {0}, {1}'.format(pieces, gaps))
                     if row == 0 or (row > 0 and board.get_item_value(gaps[0], row-1) is not None):
                         threes.append([row, True, gaps[0]])
                     else:
                         threes.append([row, False, gaps[0]])
+            pieces = 0
 
         if twos > 0 or len(threes) > 0:
             openings.append([row, {'twos': twos,'threes': threes}])
