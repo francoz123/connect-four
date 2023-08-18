@@ -60,35 +60,112 @@ class ConnectFourEnvironment(ConnectFourBaseEnvironment):
         for opening_list in counter_openings.values():
             for opening in opening_list:
                 if opening[1] == 2:
-                    power_up = game_state['power-up-{0}'.format(opponent_colour)]
+                    """ power_up = game_state['power-up-{0}'.format(opponent_colour)]
                     if power_up is not None and power_up == 'x2':
                         value -= 5
-                    else:
-                        value -= 2
+                    else: """
+                    value -= 2
                 elif opening[1] == 3:
                     value -= 100
 
         return value
 
-def connected(board, player):
+def horizontals(board, player):
     opponent_colour = 'Y' if player == 'R' else 'Y'
-    lines = {
-        'v': [],
-        'h': [],
-        'rd': [],
-        'ld': []
-    }
-    before, pieces, after, total = 0, 0, 0, 0
-    for i in range(board.get_height()):
-        for j in range(board.get_width()):
-            turn = board.get_item_value(j, i)
-            pieces += 1 if turn == player else 0
-            before += 1 if (turn == None and pieces == 0) else 0
-            after += 1 if (turn == None and pieces > 0) else 0
-            total += 1
+    openings = []
+    # Calculate horizontal twos
+    for row in range(board.get_height()):
+        pieces, twos, threes = 0, 0, []
+        for col in range(3, board.get_width()):
+            start, stop, gaps = col, col + 3, []
+            while start <= stop and not board.get_item_value(start, row) == opponent_colour:
+                if board.get_item_value(start, row) == player:
+                    pieces += 1 
+                else:
+                    gaps.append(start)
+                start += 1
+            if start == stop:
+                if pieces == 2:
+                    twos += 1 
+                if pieces == 3:
+                    if row == 0 or (row > 0 and board.get_item_value(gaps[0], row-1) is not None):
+                        threes.append([row, True, gaps[0]])
+                    else:
+                        threes.append([row, False, gaps[0]])
 
-            if turn == opponent_colour:
-                if total >= 5 and pieces == 2:
-                    lines['h'].append([i, pieces, 2])
-                if total >= 5 and pieces == 3:
-                    lines['h'].append([i, pieces, 100])
+        if twos > 0 or len(threes) > 0:
+            openings.append([row, {'twos': twos,'threes': threes}])
+    return openings
+
+def right_diagonals(board, player):
+    opponent_colour = 'Y' if player == 'R' else 'Y'
+    openings = []
+    end = 3
+    # Calculate horizontal twos
+    for col in range(end + 1):
+        for row in (range(5, 6) if col > 0 else range(3, 6)):
+            twos, threes = 0, []
+            x, y,  = col, row
+            col_end, row_end = 6-(6-y), 0
+            stop_col, stop_row = col_end-3, y-(y-3)
+            while x <= stop_col and y >= stop_row:
+                pieces = 0
+                start_x, start_y, stop, gaps = x, y, x + 3, []
+                while start_x <= stop and not (board.get_item_value(start_x, start_y) == opponent_colour):
+                    if board.get_item_value(start_x, start_y) == player:
+                        pieces += 1 
+                    else:
+                        gaps.append([start_x, start_y])
+                    start_x += 1
+                    start_y -= 1
+                if start_x == stop:
+                    if pieces == 2:
+                        twos += 1 
+                    if pieces == 3:
+                        if (gaps[0][1] == 0 and board.get_item_value(gaps[0][0], gaps[0][1]) is None) or\
+                              (gaps[0][1] > 0 and board.get_item_value(gaps[0][0], gaps[0][1]-1) is not None):
+                            threes.append([row, True, gaps[0][0]])
+                        else:
+                            threes.append([row, False, gaps[0][0]])
+                x, y = x+1, y-1
+        if twos > 0 or len(threes) > 0:
+            openings.append([row, {'twos': twos,'threes': threes}])
+
+    return openings
+
+def left_diagonals(board, player):
+    opponent_colour = 'Y' if player == 'R' else 'Y'
+    openings = []
+    end = 3
+    # Calculate horizontal twos
+    for col in range(end + 1):
+        for row in (range(1) if col > 0 else range(3)):
+            twos, threes = 0, []
+            x, y,  = col, row
+            col_end, row_end = 6-(6-y), 5
+            stop_col, stop_row = col_end-3, y+(y-2)
+            while x <= stop_col and y <= stop_row:
+                pieces = 0
+                start_x, start_y, stop, gaps = x, y, x + 3, []
+                while start_x <= stop and not (board.get_item_value(start_x, start_y) == opponent_colour):
+                    if board.get_item_value(start_x, start_y) == player:
+                        pieces += 1 
+                    else:
+                        gaps.append([start_x, start_y])
+                    start_x += 1
+                    start_y += 1
+                if start_x == stop:
+                    if pieces == 2:
+                        twos += 1 
+                    if pieces == 3:
+                        if (gaps[0][1] == 0 and board.get_item_value(gaps[0][0], gaps[0][1]) is None) or\
+                              (gaps[0][1] > 0 and board.get_item_value(gaps[0][0], gaps[0][1]-1) is not None):
+                            threes.append([row, True, gaps[0][0]])
+                        else:
+                            threes.append([row, False, gaps[0][0]])
+                x, y = x+1, y+1
+        if twos > 0 or len(threes) > 0:
+            openings.append([row, {'twos': twos,'threes': threes}])
+            
+    return openings
+                    

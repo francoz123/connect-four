@@ -42,7 +42,8 @@ def minimax_alpha_beta(node, player, alpha, beta, depth):
     else:
         value = float('+Inf')
     if depth <= 0 or gm.is_terminal(game_state):
-        value = gm.payoff(game_state, player) + node.get_cost()
+        #value = gm.payoff(game_state, player) #+ node.get_cost()
+        value = center(action.split('-')[-1], game_state, player)
         return value, move_best
     
     for action in legal_actions:
@@ -171,3 +172,7 @@ def optimised_minimax(node, player, tt, depth):
         tt.store_node(node, entry_dict)
 
     return value, move_best
+
+def center(col, game_state, player):
+    p = gm.payoff(game_state, player)
+    return p + 6 if col == 3 else p
