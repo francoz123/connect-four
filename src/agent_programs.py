@@ -54,17 +54,13 @@ def intelligent_behaviour(percepts, actuator, max_depth = 4):
         'power-up-R': percepts['powerups-sensor']['R'],
         'player-turn': player_turn
     }
-    #max_depth = 5
-    root = GraphNode(game_state, None, None, 0)
-    print(player_turn,  ConnectFourEnvironment.get_openings(percepts['game-board-sensor'], player_turn))
-    print(other,  ConnectFourEnvironment.get_openings(percepts['game-board-sensor'], other))
-    player_turn = ConnectFourEnvironment.turn(game_state)
+    
     if not ConnectFourEnvironment.is_terminal(game_state):
         state_node = GraphNode(game_state, None, None, 0)
-        #tic = time.time()
+        tic = time.time()
         _, best_move = minimax_alpha_beta(state_node, player_turn, float("-Inf"), float("+Inf"), max_depth)
-        #toc = time.time()
-        #print("[Minimax Alpha-Beta (player {0})] Elapsed (sec): {1:.6f}".format(player_turn, toc-tic))
+        toc = time.time()
+        print("[Minimax Alpha-Beta (player {0})] Elapsed (sec): {1:.6f}".format(player_turn, toc-tic))
         if best_move is not None:
             return [best_move]
     print('Best move ',best_move)
