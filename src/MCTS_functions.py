@@ -23,6 +23,25 @@ def selection_policy(node, target_player):
     
     return best_node
 
+def selection_policy2(node, target_player):
+    # In this case, we select a node that was not explored yet
+    # or, if all nodes were explored, the one with highest wins
+    # Better version may use different policies (e.g. see UCT policy)
+    successors = node.get_successors()
+    best_payoff = 0
+    best_node = None
+    for s in successors:
+        if s.n() > 0:
+            score = gm.payoff(s.get_state(), target_player)
+            if best_node is None or score > best_payoff:
+                best_payoff = score
+                best_node = s
+        else:
+            # unexplored child, choose it
+            return s
+    
+    return best_node
+
 def random_playout(initial_node):
     current_playout_state = initial_node.get_state()
     while not gm.is_terminal(current_playout_state):    
@@ -40,7 +59,7 @@ def mcts(root_node, target_player, max_time=1):
         # SELECTION PHASE
         current_node = root_node
         while not gm.is_terminal(current_node.get_state()) and not current_node.is_leaf_node():
-            current_node = selection_policy(current_node, target_player)
+            current_node = selection_policy2(current_node, target_player)
         
         # EXPANSION PHASE
         selected_node = current_node

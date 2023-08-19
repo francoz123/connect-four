@@ -54,14 +54,14 @@ class ConnectFourEnvironment(ConnectFourBaseEnvironment):
 
         for col in verticals:
             if col[1] == 2:
-                if game_state['power-up-{0}'.format(opponent_colour)] == 'x2':
-                    return -200
                 value += 2
             elif col[1] == 3:
                 value += 5
 
         for col in counter_vert:
             if col[1] == 2:
+                if game_state['power-up-{0}'.format(opponent_colour)] == 'x2':
+                    return -200
                 value -= 2
             elif col[1] == 3:
                 return -200
@@ -92,62 +92,6 @@ class ConnectFourEnvironment(ConnectFourBaseEnvironment):
                         else:
                             value -= 5
 
-        return value
-    
-    def payoff2(game_state, player_colour, action):
-        # it must return a payoff for the considered player ('Y' or 'R') in a given game_state
-        opponent_colour = 'Y' if player_colour == 'R' else 'R'
-        value = 10 if int(action.split('-')[-1]) == 3 else 0
-        gb = game_state['game-board']
-        if ConnectFourEnvironment.is_terminal(game_state):
-            winner = ConnectFourBaseEnvironment.get_winner(game_state)
-            return 200 if winner == player_colour else -200 if winner is not None else 100
-            
-        openings = [horizontals(gb, player_colour), right_diagonals(gb, player_colour), left_diagonals(gb, player_colour)]
-        verticals = ConnectFourBaseEnvironment.get_openings(gb, player_colour)['verticals']
-        counter_openings = [horizontals(gb, player_colour), right_diagonals(gb, player_colour), left_diagonals(gb, player_colour)]
-        counter_vert = ConnectFourBaseEnvironment.get_openings(gb, opponent_colour)['verticals']
-
-        for col in verticals:
-            if col[1] == 2:
-                if game_state['power-up-{0}'.format(opponent_colour)] == 'x2':
-                    return -200
-                value += 2
-            elif col[1] == 3:
-                value += 4
-
-        for col in counter_vert:
-            if col[1] == 2:
-                value -= 2
-            elif col[1] == 3:
-                return -200
-
-        for opening_list in openings:
-            for opening in opening_list:
-                if len(opening['twos']) > 0:
-                    for item in opening['twos']:
-                        value += 2
-                #value += 2*opening['twos']
-                if len(opening['threes']) > 0:
-                    for item in opening['threes']:
-                        value += 4
-
-        for opening_list in counter_openings:
-            for opening in opening_list:
-                if len(opening['twos']) > 0:
-                    for item in opening['twos']:
-                        if item['can-win'] and game_state['power-up-{0}'.format(opponent_colour)] == 'x2':
-                            return -200
-                        else:
-                            value -= 2
-                #value -= 2*opening['twos']
-                if len(opening['threes']) > 0:
-                    for item in opening['threes']:
-                        if item['can-win']:
-                            return -200
-                        else:
-                            value -= 5
-        print('value', value)
         return value
 
 def horizontals(board, player):
@@ -194,7 +138,6 @@ def right_diagonals(board, player):
             row_end = 5 if x <= 1 else 6-x
             stop_col = col_end-3
             stop_row = 2 if x <= 1 else 1 if x == 2 else 0
-            #print('st', col, row, 'end', col_end, row_end, 'stp', stop_col, stop_row)
             while x <= stop_col and y <= stop_row:
                 pieces = 0
                 start_x, start_y, stop, gaps = x, y, x + 3, []
@@ -207,7 +150,12 @@ def right_diagonals(board, player):
                     start_y += 1
                 if start_x == stop + 1:
                     if pieces == 2:
-                        twos.append({'can-win':False, 'opening':[gaps[0][1], gaps[1][1]]}) 
+                        can_win = True
+                        for gap in gaps:
+                            if (gaps[0][0] == 0 and board.get_item_value(gaps[0][1], gaps[0][0]) is not None) or\
+                                (gaps[0][0] < 5 and board.get_item_value(gaps[0][1], gaps[0][0]+1) is  None):
+                                can_win = False
+                        twos.append({'can-win':False, 'opening':gaps[0][1]}) 
                     if pieces == 3:
                         if (gaps[0][0] == 0 and board.get_item_value(gaps[0][1], gaps[0][0]) is None) or\
                               (gaps[0][0] < 5 and board.get_item_value(gaps[0][1], gaps[0][0]+1) is not None):
@@ -249,7 +197,12 @@ def left_diagonals(board, player):
                     start_y -= 1
                 if start_x == stop + 1:
                     if pieces == 2:
-                        twos.append({'can-win':False, 'opening':[gaps[0][1], gaps[1][1]]}) 
+                        can_win = True
+                        for gap in gaps:
+                            if (gaps[0][0] == 0 and board.get_item_value(gaps[0][1], gaps[0][0]) is not None) or\
+                                (gaps[0][0] < 5 and board.get_item_value(gaps[0][1], gaps[0][0]+1) is  None):
+                                can_win = False
+                        twos.append({'can-win':False, 'opening':gaps[0][1]}) 
                     if pieces == 3:
                         if (gaps[0][0] == 5 and board.get_item_value(gaps[0][1], gaps[0][0]) is None) or\
                             (gaps[0][0] < 5 and board.get_item_value(gaps[0][1], gaps[0][0]+1) is not None):

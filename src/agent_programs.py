@@ -42,20 +42,24 @@ def human_agent(percepts, actuators):
     action = ConnectFourGame.wait_for_user_input()
     return [action]
 
+
 # TODO
 # complete the agent program to implement an intelligent behaviour for
 # the agent player
 def intelligent_behaviour(percepts, actuator, max_depth = 4):
+    board = percepts['game-board-sensor']
     player_turn = percepts['turn-taking-indicator']
     other = 'Y' if player_turn == 'R' else 'R'
+
+    if len(board.find_value('R')) + len(board.find_value('Y')) + len(board.find_value('W')) <= 4:
+        return ['release-3']
     game_state = {
-        'game-board': percepts['game-board-sensor'],
+        'game-board': board,
         'power-up-Y': percepts['powerups-sensor']['Y'],
         'power-up-R': percepts['powerups-sensor']['R'],
         'player-turn': player_turn
     }
-    root = GraphNode(game_state, None, None, 0)
-    player_turn = ConnectFourEnvironment.turn(game_state)
+    
     if not ConnectFourEnvironment.is_terminal(game_state):
         state_node = GraphNode(game_state, None, None, 0)
         tic = time.time()
@@ -64,7 +68,7 @@ def intelligent_behaviour(percepts, actuator, max_depth = 4):
         print("[Minimax Alpha-Beta (player {0})] Elapsed (sec): {1:.6f}".format(player_turn, toc-tic))
         if best_move is not None:
             return [best_move]
-    print('Best move ',best_move)
+        
     return []
 
 def minimax_alpha_beta(node, player, alpha, beta, depth):
@@ -118,27 +122,6 @@ def agent_program_optimised_minimax(percepts, actuators, tt, max_depth=4):
         state_node = GraphNode(game_state, None, None, 0)
         tic = time.time()
         _, best_move = optimised_minimax(state_node, player, tt, max_depth)
-        toc = time.time()
-        print("[Optimised Minimax (player {0})] Elapsed (sec): {1:.6f}".format(player, toc-tic))
-        if best_move is not None:
-            return [best_move]
-    
-    return []
-
-def agent_program_optimised_minimax_ab(percepts, actuators, tt, max_depth=4):
-    player = percepts['turn-taking-indicator']
-    game_state = {
-        'game-board': percepts['game-board-sensor'],
-        'power-up-Y': percepts['powerups-sensor']['Y'],
-        'power-up-R': percepts['powerups-sensor']['R'],
-        'player-turn': player
-    }
-
-    
-    if not ConnectFourEnvironment.is_terminal(game_state):
-        state_node = GraphNode(game_state, None, None, 0)
-        tic = time.time()
-        _, best_move = optimised_minimax_alpha_beta(state_node, player, float("-Inf"), float("+Inf"),tt, max_depth)
         toc = time.time()
         print("[Optimised Minimax (player {0})] Elapsed (sec): {1:.6f}".format(player, toc-tic))
         if best_move is not None:
