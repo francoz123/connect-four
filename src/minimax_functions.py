@@ -139,7 +139,8 @@ def optimised_minimax(node, player, tt, depth):
     # using transposition table
     tt_entry = tt.lookup(node)
     if tt_entry is not None and tt_entry['depth'] >= depth:
-        return tt_entry['value'], tt_entry["move_best"]
+        if tt_entry["move_best"] in gm.get_legal_actions(game_state):
+            return tt_entry['value'], tt_entry["move_best"]
     
     move_best = None
     
