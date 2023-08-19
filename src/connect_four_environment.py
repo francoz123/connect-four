@@ -44,11 +44,9 @@ class ConnectFourEnvironment(ConnectFourBaseEnvironment):
         value = 0
         gb = game_state['game-board']
         if ConnectFourEnvironment.is_terminal(game_state):
-            if ConnectFourBaseEnvironment.get_winner(game_state) == player_colour: 
-             return 200
-            if ConnectFourBaseEnvironment.get_winner(game_state) is not None: 
-                return -200
-            return 100
+            winner = ConnectFourBaseEnvironment.get_winner(game_state)
+            return 200 if winner == player_colour else -200 if winner is not None else 100
+            
         openings = [horizontals(gb, player_colour), right_diagonals(gb, player_colour), left_diagonals(gb, player_colour)]
         verticals = ConnectFourBaseEnvironment.get_openings(gb, player_colour)['verticals']
         counter_openings = [horizontals(gb, player_colour), right_diagonals(gb, player_colour), left_diagonals(gb, player_colour)]
@@ -70,14 +68,23 @@ class ConnectFourEnvironment(ConnectFourBaseEnvironment):
 
         for opening_list in openings:
             for opening in opening_list:
-                value += 2*opening['twos']
+                if len(opening['twos']) > 0:
+                    for item in opening['twos']:
+                        value += 2
+                #value += 2*opening['twos']
                 if len(opening['threes']) > 0:
                     for item in opening['threes']:
                         value += 5
 
         for opening_list in counter_openings:
             for opening in opening_list:
-                value -= 2*opening['twos']
+                if len(opening['twos']) > 0:
+                    for item in opening['twos']:
+                        if item['can-win'] and game_state['power-up-{0}'.format(opponent_colour)] == 'x2':
+                            return -200
+                        else:
+                            value -= 2
+                #value -= 2*opening['twos']
                 if len(opening['threes']) > 0:
                     for item in opening['threes']:
                         if item['can-win']:
@@ -85,7 +92,62 @@ class ConnectFourEnvironment(ConnectFourBaseEnvironment):
                         else:
                             value -= 5
 
+        return value
+    
+    def payoff2(game_state, player_colour, action):
+        # it must return a payoff for the considered player ('Y' or 'R') in a given game_state
+        opponent_colour = 'Y' if player_colour == 'R' else 'R'
+        value = 10 if int(action.split('-')[-1]) == 3 else 0
+        gb = game_state['game-board']
+        if ConnectFourEnvironment.is_terminal(game_state):
+            winner = ConnectFourBaseEnvironment.get_winner(game_state)
+            return 200 if winner == player_colour else -200 if winner is not None else 100
+            
+        openings = [horizontals(gb, player_colour), right_diagonals(gb, player_colour), left_diagonals(gb, player_colour)]
+        verticals = ConnectFourBaseEnvironment.get_openings(gb, player_colour)['verticals']
+        counter_openings = [horizontals(gb, player_colour), right_diagonals(gb, player_colour), left_diagonals(gb, player_colour)]
+        counter_vert = ConnectFourBaseEnvironment.get_openings(gb, opponent_colour)['verticals']
 
+        for col in verticals:
+            if col[1] == 2:
+                if game_state['power-up-{0}'.format(opponent_colour)] == 'x2':
+                    return -200
+                value += 2
+            elif col[1] == 3:
+                value += 4
+
+        for col in counter_vert:
+            if col[1] == 2:
+                value -= 2
+            elif col[1] == 3:
+                return -200
+
+        for opening_list in openings:
+            for opening in opening_list:
+                if len(opening['twos']) > 0:
+                    for item in opening['twos']:
+                        value += 2
+                #value += 2*opening['twos']
+                if len(opening['threes']) > 0:
+                    for item in opening['threes']:
+                        value += 4
+
+        for opening_list in counter_openings:
+            for opening in opening_list:
+                if len(opening['twos']) > 0:
+                    for item in opening['twos']:
+                        if item['can-win'] and game_state['power-up-{0}'.format(opponent_colour)] == 'x2':
+                            return -200
+                        else:
+                            value -= 2
+                #value -= 2*opening['twos']
+                if len(opening['threes']) > 0:
+                    for item in opening['threes']:
+                        if item['can-win']:
+                            return -200
+                        else:
+                            value -= 5
+        print('value', value)
         return value
 
 def horizontals(board, player):
@@ -93,9 +155,9 @@ def horizontals(board, player):
     openings = []
     # Calculate horizontal twos
     for row in range(board.get_height()):
-        twos, threes = 0, []
+        twos, threes = [], []
         for col in range(board.get_width()-3):
-            start, stop, pieces, gaps = col, col + 3, [], []
+            start, stop, pieces, gaps = col, col + 3, 0, []
             while start <= stop and board.get_item_value(start, row) != opponent_colour:
                 if board.get_item_value(start, row) == player:
                     pieces += 1 
@@ -153,7 +215,7 @@ def right_diagonals(board, player):
                         else:
                             threes.append({'can-win':False, 'opening':gaps[0][1]})
                 x, y = x+1, y+1
-            if twos > 0 or len(threes) > 0:
+            if len(twos) > 0 or len(threes) > 0:
                 openings.append({'number': number, 'twos': twos,'threes': threes})
             number += 1
         
@@ -168,7 +230,7 @@ def left_diagonals(board, player):
     # Calculate horizontal twos
     for col in range(end + 1):
         for row in ([5] if col > 0 else range(3,6)):
-            twos, threes = 0, []
+            twos, threes = [], []
             x, y,  = col, row
             col_end = 5+y if x < 1 else 6
             row_end = 0 if x <= 1 else x-1
@@ -195,7 +257,7 @@ def left_diagonals(board, player):
                         else:
                             threes.append({'can-win':False, 'opening':gaps[0][1]})
                 x, y = x+1, y-1
-            if twos > 0 or len(threes) > 0:
+            if len(twos) > 0 or len(threes) > 0:
                 openings.append({'number': number, 'twos': twos,'threes': threes})
             number += 1
         

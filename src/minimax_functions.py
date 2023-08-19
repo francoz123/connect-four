@@ -42,16 +42,13 @@ def minimax_alpha_beta(node, player, alpha, beta, depth):
     else:
         value = float('+Inf')
     if depth <= 0 or gm.is_terminal(game_state):
-        value = gm.payoff(game_state, player) #+ node.get_cost()
-        value = center(int(action.split('-')[-1]), game_state, player)
+        value = gm.payoff(game_state, player)
         return value, move_best
     
     for action in legal_actions:
-        cost += 7 if action.split('-')[-1] == 3 else 1
         new_state = gm.transition_result(game_state, action)
-        child_node = GraphNode(new_state, node, action, cost)
+        child_node = GraphNode(new_state, node, action, 1)
         value_new, _ = minimax_alpha_beta(child_node, player, alpha, beta, depth - 1)
-        #value_new += 10 if action.split('-')[-1] == 3 else 0
         if is_maximising:
             if value_new > value:
                 value = value_new

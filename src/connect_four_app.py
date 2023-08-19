@@ -15,9 +15,9 @@ if __name__ == '__main__':
     # Change these two lines to instantiate players with proper
     # agent programs, as per your tests
     wrapped_mcts = lambda p, a:  agent_program_mcts(p, a, max_time = 20)
-    wrapped_inteligent_behaviour = lambda p, a: intelligent_behaviour(p, a, max_depth=4)
+    wrapped_inteligent_behaviour = lambda p, a: intelligent_behaviour(p, a, max_depth=7)
     yellow_player = ConnectFourPlayer('Y', wrapped_inteligent_behaviour)
-    red_player = ConnectFourPlayer('R', wrapped_minimax_tt)
+    red_player = ConnectFourPlayer('R', wrapped_inteligent_behaviour)
 
     # DO NOT EDIT THESE LINES OF CODE!!!
     game_environment = ConnectFourEnvironment()
