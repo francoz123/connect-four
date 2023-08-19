@@ -95,7 +95,7 @@ def horizontals(board, player):
     for row in range(board.get_height()):
         twos, threes = 0, []
         for col in range(board.get_width()-3):
-            start, stop, pieces, gaps = col, col + 3, 0, []
+            start, stop, pieces, gaps = col, col + 3, [], []
             while start <= stop and board.get_item_value(start, row) != opponent_colour:
                 if board.get_item_value(start, row) == player:
                     pieces += 1 
@@ -104,14 +104,18 @@ def horizontals(board, player):
                 start += 1
             if start == stop + 1:
                 if pieces == 2:
-                    twos += 1 
+                    if (row == 5 and board.get_item_value(gaps[0], row) is None and board.get_item_value(gaps[1], row) is None) or\
+                        (row < 5 and board.get_item_value(gaps[0], row+1) is not None and board.get_item_value(gaps[1], row+1) is not None):
+                        twos.append({'can-win':True, 'opening':gaps})
+                    else:
+                        twos.append({'can-win':False, 'opening':gaps})
                 if pieces == 3:
                     if (row == 5  and board.get_item_value(gaps[0], row) is None) or\
                         (row < 5 and board.get_item_value(gaps[0], row+1) is None):
                         threes.append({'can-win':True, 'opening':gaps[0]})
                     else:
                         threes.append({'can-win':False, 'opening':gaps[0]})
-        if twos > 0 or len(threes) > 0:
+        if len(twos) > 0 or len(threes) > 0:
             openings.append({'number': row, 'twos': twos,'threes': threes})
     return openings
 
@@ -122,7 +126,7 @@ def right_diagonals(board, player):
     number = 3
     for col in range(end + 1):
         for row in ([0] if col > 0 else range(3)):
-            twos, threes = 0, []
+            twos, threes = [], []
             x, y,  = col, row
             col_end = 5-y if x < 1 else 6
             row_end = 5 if x <= 1 else 6-x
@@ -141,7 +145,7 @@ def right_diagonals(board, player):
                     start_y += 1
                 if start_x == stop + 1:
                     if pieces == 2:
-                        twos += 1 
+                        twos.append({'can-win':False, 'opening':[gaps[0][1], gaps[1][1]]}) 
                     if pieces == 3:
                         if (gaps[0][0] == 0 and board.get_item_value(gaps[0][1], gaps[0][0]) is None) or\
                               (gaps[0][0] < 5 and board.get_item_value(gaps[0][1], gaps[0][0]+1) is not None):
@@ -183,7 +187,7 @@ def left_diagonals(board, player):
                     start_y -= 1
                 if start_x == stop + 1:
                     if pieces == 2:
-                        twos += 1 
+                        twos.append({'can-win':False, 'opening':[gaps[0][1], gaps[1][1]]}) 
                     if pieces == 3:
                         if (gaps[0][0] == 5 and board.get_item_value(gaps[0][1], gaps[0][0]) is None) or\
                             (gaps[0][0] < 5 and board.get_item_value(gaps[0][1], gaps[0][0]+1) is not None):
