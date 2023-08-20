@@ -64,7 +64,7 @@ class ConnectFourEnvironment(ConnectFourBaseEnvironment):
 
         for col in counter_vert:
             if col[1] == 2:
-                value -= 2
+                value -= 5
             elif col[1] == 3:
                 return -500
 
@@ -83,60 +83,10 @@ class ConnectFourEnvironment(ConnectFourBaseEnvironment):
                         if item['can-win']:
                             return -500
                         else:
-                            value -= 7
+                            value -= 5
 
         return value
 
-    def payoff2(game_state, player_colour, action):
-        # it must return a payoff for the considered player ('Y' or 'R') in a given game_state
-        opponent_colour = 'Y' if player_colour == 'R' else 'R'
-        
-        value = 4 if action is not None and action.split('-')[-1] == 3 else 0
-
-        gb = game_state['game-board']
-        if ConnectFourEnvironment.is_terminal(game_state):
-            if ConnectFourBaseEnvironment.get_winner(game_state) == player_colour: 
-             return 500
-            if ConnectFourBaseEnvironment.get_winner(game_state) is not None: 
-                return -500
-            return 100
-        openings = [horizontals(gb, player_colour), right_diagonals(gb, player_colour), left_diagonals(gb, player_colour)]
-        verticals = ConnectFourBaseEnvironment.get_openings(gb, player_colour)['verticals']
-        counter_openings = [horizontals(gb, player_colour), right_diagonals(gb, player_colour), left_diagonals(gb, player_colour)]
-        counter_vert = ConnectFourBaseEnvironment.get_openings(gb, opponent_colour)['verticals']
-
-        for col in verticals:
-            if col[1] == 2:
-                if game_state['power-up-{0}'.format(opponent_colour)] == 'x2':
-                    return -500
-                value += 2
-            elif col[1] == 3:
-                value += 5
-
-        for col in counter_vert:
-            if col[1] == 2:
-                value -= 2
-            elif col[1] == 3:
-                return -500
-
-        for opening_list in openings:
-            for opening in opening_list:
-                value += 2*opening['twos']
-                if len(opening['threes']) > 0:
-                    for item in opening['threes']:
-                        value += 5
-
-        for opening_list in counter_openings:
-            for opening in opening_list:
-                value -= 2*opening['twos']
-                if len(opening['threes']) > 0:
-                    for item in opening['threes']:
-                        if item['can-win']:
-                            return -500
-                        else:
-                            value -= 7
-
-        return value
 def horizontals(board, player):
     opponent_colour = 'Y' if player == 'R' else 'R'
     openings = []
@@ -154,9 +104,8 @@ def horizontals(board, player):
             if start == stop + 1:
                 if pieces == 2:
                     twos += 1 
-                if pieces == 3:
-                    if (row == 5  and board.get_item_value(gaps[0], row) is None) or\
-                        (row < 5 and board.get_item_value(gaps[0], row+1) is None):
+                if pieces == 3:#  and board.get_item_value(gaps[0], row) is None
+                    if (row == 5) or (row < 5 and board.get_item_value(gaps[0], row+1) is not None):
                         threes.append({'can-win':True, 'opening':gaps[0]})
                     else:
                         threes.append({'can-win':False, 'opening':gaps[0]})

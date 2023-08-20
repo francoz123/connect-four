@@ -2,13 +2,12 @@ from une_ai.assignments import ConnectFourGame
 from connect_four_environment import ConnectFourEnvironment
 from connect_four_player import ConnectFourPlayer
 from agent_programs import random_behaviour, human_agent, intelligent_behaviour
-from connectfour_ttable import ConnectFourTTable
 
 if __name__ == '__main__':
     # Change these two lines to instantiate players with proper
     # agent programs, as per your tests
-    wrapped_inteligent_behaviour = lambda p, a: intelligent_behaviour(p, a, max_depth=4)
-    
+    wrapped_inteligent_behaviour = lambda p, a: intelligent_behaviour(p, a, max_depth=1)
+
     yellow_player = ConnectFourPlayer('Y', wrapped_inteligent_behaviour)
     red_player = ConnectFourPlayer('R', wrapped_inteligent_behaviour)
 

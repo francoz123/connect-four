@@ -5,7 +5,6 @@ import time
 from une_ai.models import GraphNode, MCTSGraphNode
 from une_ai.assignments import ConnectFourGame
 from connect_four_environment import ConnectFourEnvironment
-#from minimax_functions import minimax_alpha_beta
 
 # A simple agent program choosing actions randomly
 def random_behaviour(percepts, actuators):
@@ -66,6 +65,7 @@ def intelligent_behaviour(percepts, actuator, max_depth = 4):
     return []
 
 def minimax_alpha_beta(node, player, alpha, beta, depth):
+    # Adapted from lecture examples
     game_state = node.get_state()
     move_best = None
     legal_actions = ConnectFourEnvironment.get_legal_actions(game_state)
@@ -78,7 +78,7 @@ def minimax_alpha_beta(node, player, alpha, beta, depth):
     else:
         value = float('+Inf')
     if depth <= 0 or ConnectFourEnvironment.is_terminal(game_state):
-        value = ConnectFourEnvironment.payoff2(game_state, player, node.get_action())
+        value = ConnectFourEnvironment.payoff(game_state, player)
         return value, move_best
     
     for action in legal_actions:
