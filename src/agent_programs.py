@@ -5,8 +5,7 @@ import time
 from une_ai.models import GraphNode, MCTSGraphNode
 from une_ai.assignments import ConnectFourGame
 from connect_four_environment import ConnectFourEnvironment
-from MCTS_functions import mcts
-from minimax_functions import minimax, minimax_alpha_beta, optimised_minimax, optimised_minimax_alpha_beta
+#from minimax_functions import minimax_alpha_beta
 
 # A simple agent program choosing actions randomly
 def random_behaviour(percepts, actuators):
@@ -79,7 +78,7 @@ def minimax_alpha_beta(node, player, alpha, beta, depth):
     else:
         value = float('+Inf')
     if depth <= 0 or ConnectFourEnvironment.is_terminal(game_state):
-        value = ConnectFourEnvironment.payoff(game_state, player)
+        value = ConnectFourEnvironment.payoff2(game_state, player, node.get_action())
         return value, move_best
     
     for action in legal_actions:
@@ -102,65 +101,3 @@ def minimax_alpha_beta(node, player, alpha, beta, depth):
                 break
         
     return value, move_best
-
-def agent_program_optimised_minimax(percepts, actuators, tt, max_depth=4):
-    player = percepts['turn-taking-indicator']
-    game_state = {
-        'game-board': percepts['game-board-sensor'],
-        'power-up-Y': percepts['powerups-sensor']['Y'],
-        'power-up-R': percepts['powerups-sensor']['R'],
-        'player-turn': player
-    }
-
-    
-    if not ConnectFourEnvironment.is_terminal(game_state):
-        state_node = GraphNode(game_state, None, None, 0)
-        tic = time.time()
-        _, best_move = optimised_minimax(state_node, player, tt, max_depth)
-        toc = time.time()
-        print("[Optimised Minimax (player {0})] Elapsed (sec): {1:.6f}".format(player, toc-tic))
-        if best_move is not None:
-            return [best_move]
-    
-    return []
-
-def agent_program_optimised_minimax_ab(percepts, actuators, tt, max_depth=4):
-    player = percepts['turn-taking-indicator']
-    game_state = {
-        'game-board': percepts['game-board-sensor'],
-        'power-up-Y': percepts['powerups-sensor']['Y'],
-        'power-up-R': percepts['powerups-sensor']['R'],
-        'player-turn': player
-    }
-
-    
-    if not ConnectFourEnvironment.is_terminal(game_state):
-        state_node = GraphNode(game_state, None, None, 0)
-        tic = time.time()
-        _, best_move = optimised_minimax_alpha_beta(state_node, player, float("-Inf"), float("+Inf"),tt, max_depth)
-        toc = time.time()
-        print("[Optimised Minimax (player {0})] Elapsed (sec): {1:.6f}".format(player, toc-tic))
-        if best_move is not None:
-            return [best_move]
-    
-    return []
-
-def agent_program_mcts(percepts, actuators, max_time=1):
-    player = percepts['turn-taking-indicator']
-    game_state = {
-        'game-board': percepts['game-board-sensor'],
-        'power-up-Y': percepts['powerups-sensor']['Y'],
-        'power-up-R': percepts['powerups-sensor']['R'],
-        'player-turn': player
-    }
-    
-    if not ConnectFourEnvironment.is_terminal(game_state):
-        tic = time.time()
-        root_node = MCTSGraphNode(game_state, None, None)
-        best_move = mcts(root_node, player, max_time)
-        toc = time.time()
-        print("[MTCS (player {0})] Elapsed (sec): {1:.6f}".format(player, toc-tic))
-        if best_move is not None:
-            return [best_move]
-    
-    return []

@@ -21,6 +21,8 @@ class ConnectFourTTable(TTable):
         
         table["player-turn-R"] = random_int()
         table["player-turn-Y"] = random_int()
+        table["power-up-R"] = random_int()
+        table["power-up-Y"] = random_int()
         
         return table
     
@@ -28,9 +30,11 @@ class ConnectFourTTable(TTable):
         zobrist_table = self.get_zobrist_table()
 
         player = state['player-turn']
+        power_up = state['power-up-{0}'.format(player)]
 
         h = 0
         h ^= zobrist_table['player-turn-{0}'.format(player)]
+        h ^= zobrist_table['power-up-{0}'.format(player)]
         game_board = state['game-board']
         for i in range(game_board.get_width()):
             for j in range(game_board.get_height()):
