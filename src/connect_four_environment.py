@@ -64,7 +64,7 @@ class ConnectFourEnvironment(ConnectFourBaseEnvironment):
 
         for col in counter_vert:
             if col[1] == 2:
-                value -= 5
+                value -= 2
             elif col[1] == 3:
                 return -500
 
